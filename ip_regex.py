@@ -44,3 +44,22 @@ def print_the_right_most(l_t):
 	print l_t[-1].root
 	return print_the_right_most(child_lst)
 
+
+class solution(object):
+	def levelOrder(self, root):
+		if not root:
+			return []
+		q = [root]
+		res = []
+		while q:
+			length = len(q)
+			sub_list = []
+			for i in range(length):
+				node = q.pop(0)
+				sub_list.append(node.val)
+				if node.left:
+					q.append(node.left)
+				if node.right:
+					q.append(node.right)
+			res.append(sub_list)
+		return res
