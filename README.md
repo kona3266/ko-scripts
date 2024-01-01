@@ -1,2 +1,2 @@
-# text_handling
-As a developer, I prefer edit plain text.
+# scripts collection
+A collection of miscellaneous  scripts.
