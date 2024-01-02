@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import socket
+import select
 from binascii import hexlify
 import sys
 import signal
@@ -47,10 +48,13 @@ if __name__ == "__main__":
         print stderr,
         print stdout,
         sys.exit(0)
-
     signal.signal(signal.SIGINT, exit_sub)
+
+    for i in range(2):
+        bytes_state = local_client.stderr.read()
+        print bytes_state,
+    inputs = [local_client.stderr, local_client.stdout]
     while local_client.poll() is None:
-        bytes_state = local_client.stderr.readline()
-        print bytes_state,
-        bytes_state = local_client.stdout.readline()
-        print bytes_state,
+        r, w, e = select.select(inputs, [], [], 0)
+        for i in r:
+            print i.readline(),
