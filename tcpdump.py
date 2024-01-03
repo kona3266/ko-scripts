@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import socket
-import select
 from binascii import hexlify
 import sys
 import signal
@@ -34,13 +33,16 @@ if __name__ == "__main__":
 
     if options.dst_host:
         hexStr = host2str(options.dst_host)
-        packet_accesor += " and " + "ether[80:4]=" + "0x" + hexStr
+        if packet_accesor:
+            packet_accesor += " and " + "ether[80:4]=" + "0x" + hexStr
+        else:
+            packet_accesor += "ether[80:4]=" + "0x" + hexStr
 
     args = "-i %s -nel " % device  + packet_accesor
     args = args.split()
     cmd = ["/usr/sbin/tcpdump"] + args
     print cmd
-    local_client = subprocess.Popen(cmd, shell=False, bufsize=-1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    local_client = subprocess.Popen(cmd, shell=False, bufsize=-1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print "subprocess pid is %s" % local_client.pid, "use ctrl + c to stop it"
 
     def exit_sub(sig_num, frame):
@@ -50,11 +52,5 @@ if __name__ == "__main__":
         sys.exit(0)
     signal.signal(signal.SIGINT, exit_sub)
 
-    for i in range(2):
-        bytes_state = local_client.stderr.read()
-        print bytes_state,
-    inputs = [local_client.stderr, local_client.stdout]
     while local_client.poll() is None:
-        r, w, e = select.select(inputs, [], [], 0)
-        for i in r:
-            print i.readline(),
+        print local_client.stdout.readline(),
