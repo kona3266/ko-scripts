@@ -10,8 +10,8 @@ rect.x2 = 2
 rect.y2 = 0
 url = "tcp://localhost:5555"
 class Client():
-    def __init__(self, data):
-        context = zmq.Context()
+    def __init__(self, ,ctx, data):
+        context = ctx
         self.data = data
         self.socket = context.socket(zmq.REQ)
 
@@ -24,8 +24,9 @@ class Client():
         print(resp)
 
 def send_data(data):
+    context = zmq.Context()
     data = rect.SerializeToString()
-    client = Client(data)
+    client = Client(context, data)
     client.send(url)
     client.receive()
 
