@@ -10,7 +10,7 @@ rect.x2 = 2
 rect.y2 = 0
 url = "tcp://localhost:5555"
 class Client():
-    def __init__(self, ,ctx, data):
+    def __init__(self, ctx, data):
         context = ctx
         self.data = data
         self.socket = context.socket(zmq.REQ)
