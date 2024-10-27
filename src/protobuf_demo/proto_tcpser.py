@@ -16,11 +16,18 @@ class SimpleHandler(object):
             self.finish()
 
     def handle(self):
-        message = self.request.recv(BUFSIZ)
-        if len(message) == 0:
-            break
+        # receive size in head first
+        message = b''
+        while True:
+            try:
+                message += self.request.recv(1)
+                size = decode_varint(message)
+            except IndexError:
+                pass
+        # receive the body data
+        data = self.request.recv(size)
         recv_rec = target_pb2.Rect()
-        recv_rec.ParseFromString(message)
+        recv_rec.ParseFromString(data)
         print(recv_rec.x1, recv_rec.y1)
         print(recv_rec.x2, recv_rec.y2)
         self.wfile.write("new message")
@@ -63,10 +70,9 @@ class ThreadingMixIn(object):
 
 
 class BaseServer(object):
-    def __init__(self, port=7777, max_conn=1000, handler_class):
+    def __init__(self, port=5555, max_conn=1000, handler_class):
         self.handler_class = handler_class
         self.port = port
-        self.bufsize = 7777
         self.addr = (HOST, self.port)
         #listen的参数代表，在连接被拒绝或者转发之前，传入连接的最大数
         self.max_conn = max_conn
