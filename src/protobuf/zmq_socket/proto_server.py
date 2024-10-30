@@ -1,5 +1,5 @@
 import zmq
-import target_pb2
+import protobuf.zmq_socket.target_pb2 as target_pb2
 import threading
 context = zmq.Context()
 socket = context.socket(zmq.REP)

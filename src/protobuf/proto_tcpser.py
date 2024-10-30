@@ -1,5 +1,6 @@
 from socket import *
-import target_pb2
+import protobuf.zmq_socket.target_pb2 as target_pb2
+from protobuf.utils import decode_varint
 import threading
 
 HOST = "localhost"
@@ -22,6 +23,7 @@ class SimpleHandler(object):
             try:
                 message += self.request.recv(1)
                 size = decode_varint(message)
+                break
             except IndexError:
                 pass
         # receive the body data
@@ -70,7 +72,7 @@ class ThreadingMixIn(object):
 
 
 class BaseServer(object):
-    def __init__(self, port=5555, max_conn=1000, handler_class):
+    def __init__(self, handler_class,  port=5555, max_conn=1000):
         self.handler_class = handler_class
         self.port = port
         self.addr = (HOST, self.port)
@@ -124,3 +126,8 @@ class BaseServer(object):
             print("server shut down")
 
 class ThreadingBaseServer(ThreadingMixIn, BaseServer):pass
+
+if __name__ == "__main__":
+    s = ThreadingBaseServer(SimpleHandler)
+    s.listen()
+    s.serve()
