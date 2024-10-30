@@ -1,6 +1,6 @@
 from socket import *
-import protobuf.zmq_socket.target_pb2 as target_pb2
-from protobuf.utils import decode_varint
+from zmq_socket import target_pb2
+from utils import decode_varint, encode_varint
 import threading
 
 HOST = "localhost"
@@ -32,7 +32,16 @@ class SimpleHandler(object):
         recv_rec.ParseFromString(data)
         print(recv_rec.x1, recv_rec.y1)
         print(recv_rec.x2, recv_rec.y2)
-        self.wfile.write("new message")
+
+        rect = target_pb2.Rect()
+        rect.x1 = recv_rec.x1*2
+        rect.y1 = recv_rec.y1*2
+        rect.x2 = recv_rec.x2*2
+        rect.y2 = recv_rec.y2*2
+        msg = rect
+        data = msg.SerializeToString()
+        size = encode_varint(len(data))
+        self.wfile.write(size + data)
 
     def setup(self):
         self.connection = self.request

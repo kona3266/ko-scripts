@@ -1,7 +1,7 @@
 import socket
 import threading
-import protobuf.zmq_socket.target_pb2 as target_pb2
-from protobuf.utils import encode_varint, decode_varint
+from zmq_socket import target_pb2 
+from utils import encode_varint, decode_varint
 
 rect = target_pb2.Rect()
 rect.x1 = 0
@@ -51,5 +51,5 @@ for i in range(4):
     rect.y1 = i+1
     rect.x2 = i+2
     rect.y2 = i+3
-    t = threading.Thread(target=wait_reply, args=(rect))
+    t = threading.Thread(target=wait_reply, args=(rect,))
     t.start()
