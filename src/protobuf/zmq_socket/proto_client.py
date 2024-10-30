@@ -1,6 +1,4 @@
-import protobuf.zmq_socket.target_pb2 as target_pb2
-import time
-import os
+import target_pb2
 import zmq
 import threading
 

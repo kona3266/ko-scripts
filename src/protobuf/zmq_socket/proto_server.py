@@ -1,6 +1,5 @@
 import zmq
-import protobuf.zmq_socket.target_pb2 as target_pb2
-import threading
+import target_pb2
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://localhost:5555")
