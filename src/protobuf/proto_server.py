@@ -1,10 +1,16 @@
 import zmq
 import target_pb2
+import threading
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://localhost:5555")
 
+'''
+ZeroMQ sockets carry messages, like UDP, rather than a stream of bytes as TCP does. A ZeroMQ message is length-specified binary data.
+'''
+
 def handle_data(socket, message):
+    print('handle msg')
     recv_rec = target_pb2.Rect()
     recv_rec.ParseFromString(message)
     print(recv_rec.x1, recv_rec.y1)
@@ -12,19 +18,10 @@ def handle_data(socket, message):
     socket.send(b"new message")
 
 def receive_data(socket):
-    data = b''
-    while True:
-        try:
-            data += socket.recv(1)
-            size = decode_varint(data)
-            break
-        except IndexError:
-            pass
-    # Receive the message data
-    message = socket.recv(size)
+    message = socket.recv()
     return message
 
 while True:
-    message = socket.recv()
-    t = threading.Thread(target=send_data, args=(socket, message))
-    t.start()
+    print('waiting for connect')
+    message = receive_data(socket)
+    handle_data(socket, message)

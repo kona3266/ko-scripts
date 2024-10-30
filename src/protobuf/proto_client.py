@@ -2,6 +2,7 @@ import target_pb2
 import time
 import os
 import zmq
+import threading
 from google.protobuf.internal.encoder import _VarintEncoder
 from google.protobuf.internal.decoder import _DecodeVarint
 
@@ -11,6 +12,10 @@ rect.y1 = 2
 rect.x2 = 2
 rect.y2 = 0
 url = "tcp://localhost:5555"
+
+'''
+ZeroMQ sockets carry messages, like UDP, rather than a stream of bytes as TCP does. A ZeroMQ message is length-specified binary data. 
+'''
 
 def encode_varint(value):
     """ Encode an int as a protobuf varint """
@@ -31,29 +36,20 @@ class Client():
 
     def send(self, url):
         self.socket.connect(url)
-        size = encode_varint(len(self.data))
-        self.socket.send(size + self.data)
+        self.socket.send(self.data)
 
     def receive(self):
-        data = b''
-        while True:
-            try:
-                data += sef.socket.recv(1)
-                size = decode_varint(data)
-                break
-            except IndexError:
-                pass
         # Receive the message data
-        resp = self.socket.recv(size)
+        resp = self.socket.recv()
         print(resp)
 
-def send_data(data):
+def send_data():
     context = zmq.Context()
     data = rect.SerializeToString()
     client = Client(context, data)
     client.send(url)
     client.receive()
 
-for i in range(10):
-    t = threading.Thread(target=send_data, args=(data))
+for i in range(4):
+    t = threading.Thread(target=send_data, args=())
     t.start()
