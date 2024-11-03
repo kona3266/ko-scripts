@@ -39,7 +39,7 @@ thread_server: src/thread_server.o src/utils.o
 
 #compile
 %.o: %.c
-	$(CC) $(INCLUDES) -c  $< -o $@
+	$(CC) -g $(INCLUDES) -c  $< -o $@
 
 .PHONY:clean
 

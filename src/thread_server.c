@@ -1,8 +1,9 @@
-// Sequential socket server - accepting one client at a time.
+// thread socket server
 #include <stdint.h>
 #include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <string.h>
 #include <netinet/in.h>
 #include <pthread.h>
@@ -86,12 +87,22 @@ void server_thread(void *arg) {
     printf("Thread %ld done\n", id);
 }
 
+void sig_handler(int sig){
+    if (sig == SIGINT) {
+        printf("received SIGINT exit\n");
+        exit(0);
+    }
+}
+
 int main(int argc, char **argv)
 {
     int port = 9090;
     if (argc >= 2)
     {
         port = atoi(argv[1]);
+    }
+    if (signal(SIGINT, sig_handler) == SIG_ERR){
+        printf("can't catch SIGINT\n");
     }
     int sockfd = listen_inet_socket(port);
 
