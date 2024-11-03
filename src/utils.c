@@ -15,7 +15,7 @@ void report_peer_connected(const struct sockaddr_in* sa, socklen_t salen){
 }
 
 int listen_inet_socket(int port) {
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (sockfd < 0) {
         perror("error open socket");
         exit(1);
@@ -40,5 +40,5 @@ int listen_inet_socket(int port) {
         perror("listen error");
         exit(1);
     }
-    return sockfd
+    return sockfd;
 }

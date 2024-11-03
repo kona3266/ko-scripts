@@ -20,19 +20,29 @@ SOURCES =$(wildcard ./src/*.c)
 INCLUDES =-I./include
 LIB_PATH =-L./lib
 OBJ =$(patsubst %.c, %.o, $(SOURCES))
-TARGET =app
-
+#TARGET =server
+EXECUTABLES = sequencial_server icmp_sniffer thread_server
+all: $(EXECUTABLES)
+	@rm -r $(OBJ)
 #links
-$(TARGET):$(OBJ)
-        @mkdir -p output
-        $(CC) $(OBJ) $(LIB_PATH) -o output/$(TARGET)
-        @rm -rf $(OBJ)
+sequencial_server: src/sequential_server.o src/utils.o
+	@mkdir -p output
+	$(CC) $^ $(LIB_PATH) -o output/$@
+
+icmp_sniffer: src/icmp_sniffer.o
+	@mkdir -p output
+	$(CC) $^ $(LIB_PATH) -o output/$@
+
+thread_server: src/thread_server.o src/utils.o
+	@mkdir -p output
+	$(CC) $^ $(LIB_PATH) -o output/$@ -lpthread -pthread
 
 #compile
 %.o: %.c
-        $(CC) $(INCLUDES) -c  $< -o $@
+	$(CC) $(INCLUDES) -c  $< -o $@
 
 .PHONY:clean
+
 clean:
-        @echo "Remove linked and compiled files......"
-        rm -rf $(OBJ) $(TARGET) output
+	@echo "Remove linked and compiled files......"
+	rm -rf $(OBJ) $(EXECUTABLES) output

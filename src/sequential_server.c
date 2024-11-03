@@ -38,6 +38,7 @@ void handle_connection(int sockfd)
         }
         else if (len == 0)
         {
+            printf("EOF exit\n");
             break;
         }
         for (int i = 0; i < len; i++)
