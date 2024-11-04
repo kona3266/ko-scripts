@@ -21,7 +21,7 @@ INCLUDES =-I./include
 LIB_PATH =-L./lib
 OBJ =$(patsubst %.c, %.o, $(SOURCES))
 #TARGET =server
-EXECUTABLES = sequencial_server icmp_sniffer thread_server
+EXECUTABLES = sequencial_server icmp_sniffer thread_server select_server
 all: $(EXECUTABLES)
 	@rm -r $(OBJ)
 #links
@@ -37,9 +37,13 @@ thread_server: src/thread_server.o src/utils.o
 	@mkdir -p output
 	$(CC) $^ $(LIB_PATH) -o output/$@ -lpthread -pthread
 
+select_server: src/select_server.o src/utils.o
+	@mkdir -p output
+	$(CC) $^ -lc -o output/$@ 
+
 #compile
 %.o: %.c
-	$(CC) -g $(INCLUDES) -c  $< -o $@
+	$(CC) -g $(INCLUDES)  -c  $< -o $@
 
 .PHONY:clean
 

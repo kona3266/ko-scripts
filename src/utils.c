@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <netdb.h>
+#include <arpa/inet.h>
+#include <string.h>
+
 
 #define N_BACKLOG 64
 

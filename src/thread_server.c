@@ -7,6 +7,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "utils.h"
 
@@ -126,7 +127,7 @@ int main(int argc, char **argv)
             exit(1);
         }
         config->sockfd = newsockfd;
-        pthread_create(&the_thread, NULL, server_thread, config);
+        pthread_create(&the_thread, NULL, (void *)server_thread, config);
         pthread_detach(the_thread);
     }
     return 0;
