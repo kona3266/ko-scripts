@@ -35,16 +35,16 @@ int main(int argc, char**argv) {
     STU* s;
     s = find_stu(1);
     printf("id %d stu is %s\n", 1, s->name);
-	STU* jack;
-	jack = (STU*)malloc(sizeof(*jack));
-	jack->id = 2;
-	strcpy(jack->name, "jack");
-	add_stu(jack);
-	s = find_stu(2);
+    STU* jack;
+    jack = (STU*)malloc(sizeof(*jack));
+    jack->id = 2;
+    strcpy(jack->name, "jack");
+    add_stu(jack);
+    s = find_stu(2);
     printf("id %d stu is %s\n", 2, s->name);
     printf("there are %d stu \n", HASH_COUNT(students));
     STU *cur, *tmp;
-	HASH_ITER(hh, students, cur, tmp){
+    HASH_ITER(hh, students, cur, tmp){
         printf("del stu %s\n", cur->name);
         del_stu(cur); 
     }
