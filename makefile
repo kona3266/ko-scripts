@@ -21,7 +21,7 @@ INCLUDES =-I./include
 LIB_PATH =-L./lib
 OBJ =$(patsubst %.c, %.o, $(SOURCES))
 #TARGET =server
-EXECUTABLES = sequencial_server icmp_sniffer thread_server select_server epoll_server uv_server
+EXECUTABLES = sequencial_server icmp_sniffer thread_server select_server epoll_server uv_server hash
 all: $(EXECUTABLES)
 	@rm -r $(OBJ)
 #links
@@ -46,6 +46,10 @@ epoll_server: src/epoll_server.o src/utils.o
 	$(CC) $^ -lc -o output/$@
 
 uv_server: src/uv_server.o src/utils.o
+	@mkdir -p output
+	$(CC) $^ -luv -o output/$@
+
+hash: src/hash.o
 	@mkdir -p output
 	$(CC) $^ -luv -o output/$@
 
