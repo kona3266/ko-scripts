@@ -208,7 +208,7 @@ int main(int argc, char **argv)
     {
         int nready = epoll_wait(epollfd, events, MAXFDS, -1);
 
-        for (int i = 0; i < nready > 0; i++)
+        for (int i = 0; i < nready; i++)
         {
             if (events[i].events & EPOLLERR)
             {

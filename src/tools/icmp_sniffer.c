@@ -21,7 +21,6 @@ int main(int argc, char**argv) {
     char buf[1500];
     struct in_addr insaddr;
     struct in_addr indaddr;
-    struct icmphdr icmphdr;
     struct iphdr *recv_iphdr;
     struct icmphdr *recv_imcphdr;
 
