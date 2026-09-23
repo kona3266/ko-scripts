@@ -1,81 +1,63 @@
-# CFLAGS = -I ./include
-# test: ./src/main.o libstack.a
-#       gcc ./src/main.o -lstack -L./lib -o test
+# Directory layout
+SRC_SERVERS   := $(wildcard src/servers/*.c)
+SRC_CONCUR    := $(wildcard src/concurrency/*.c)
+SRC_TOOLS     := $(wildcard src/tools/*.c)
+SRC_DATASTR   := $(wildcard src/datastruct/*.c)
 
-# main.o: ./src/main.c
-#       gcc $(CFLAGS) -c ./src/main.c -o ./src/main.o
+COMMON_DIR    := common
+THIRD_PARTY   := third_party
+BUILD_DIR     := build
 
-# libstack.a: stack.o
-#       ar -r ./lib/libstack.a ./lib/stack.o
+CC      := gcc
+CFLAGS  := -g -Wall -I$(COMMON_DIR) -I$(THIRD_PARTY)
+LDFLAGS := -L./lib
 
-# stack.o: ./lib/stack.c
-#       gcc $(CFLAGS) -c ./lib/stack.c -o ./lib/stack.o
+# libuv is optional: uv based servers are built only when libuv is installed
+UV_H := $(firstword $(wildcard /usr/include/uv.h /usr/local/include/uv.h))
 
-# clean:
-#       rm test ./lib/libstack.a ./lib/stack.o src/main.o
+# targets
+SERVER_BINS     := $(patsubst %.c,$(BUILD_DIR)/%,$(SRC_SERVERS))
+ifneq ($(UV_H),)
+SERVER_BINS_ALL := $(SERVER_BINS)
+else
+SERVER_BINS_ALL := $(filter-out $(BUILD_DIR)/src/servers/uv_server $(BUILD_DIR)/src/servers/uv_prime_server,$(SERVER_BINS))
+endif
+CONCURRENCY_BIN := $(patsubst %.c,$(BUILD_DIR)/%,$(SRC_CONCUR))
+TOOLS_BINS      := $(patsubst %.c,$(BUILD_DIR)/%,$(SRC_TOOLS))
+DATASTRUCT_BINS := $(patsubst %.c,$(BUILD_DIR)/%,$(SRC_DATASTR))
 
+COMMON_OBJ := $(BUILD_DIR)/utils.o
 
-cc = gcc
-SOURCES =$(wildcard ./src/*.c)
-INCLUDES =-I./include
-LIB_PATH =-L./lib
-OBJ =$(patsubst %.c, %.o, $(SOURCES))
-#TARGET =server
-EXECUTABLES = sequencial_server icmp_sniffer thread_server select_server epoll_server uv_server hash\
-uv_prime_server counter MPMC semaphore
-all: $(EXECUTABLES)
-	@rm -r $(OBJ)
-#links
-sequencial_server: src/sequential_server.o src/utils.o
-	@mkdir -p output
-	$(CC) $^ $(LIB_PATH) -o output/$@
+.PHONY: all servers concurrency tools datastruct clean
 
-icmp_sniffer: src/icmp_sniffer.o
-	@mkdir -p output
-	$(CC) $^ $(LIB_PATH) -o output/$@
+all: servers concurrency tools datastruct
 
-thread_server: src/thread_server.o src/utils.o
-	@mkdir -p output
-	$(CC) $^ $(LIB_PATH) -o output/$@ -lpthread
+servers:     $(SERVER_BINS_ALL)
+concurrency: $(CONCURRENCY_BIN)
+tools:       $(TOOLS_BINS)
+datastruct:  $(DATASTRUCT_BINS)
 
-select_server: src/select_server.o src/utils.o
-	@mkdir -p output
-	$(CC) $^ -lc -o output/$@
+# ---- link rule for all binaries (common/utils.o is harmless when unused) ----
+$(BUILD_DIR)/%: $(BUILD_DIR)/%.o $(COMMON_OBJ)
+	$(CC) $^ $(LDFLAGS) $(extra_libs) -o $@
 
-epoll_server: src/epoll_server.o src/utils.o
-	@mkdir -p output
-	$(CC) $^ -lc -o output/$@
+# uv based servers need libuv
+$(BUILD_DIR)/uv_server $(BUILD_DIR)/uv_prime_server: extra_libs := -luv
 
-uv_server: src/uv_server.o src/utils.o
-	@mkdir -p output
-	$(CC) $^ -luv -o output/$@
+# concurrency/thread based targets need pthread
+$(BUILD_DIR)/thread_server $(BUILD_DIR)/MPMC $(BUILD_DIR)/semaphore: extra_libs := -lpthread
 
-hash: src/hash.o
-	@mkdir -p output
-	$(CC) $^ -o output/$@
+# ---- compile ----
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-uv_prime_server: src/uv_prime_server.o src/utils.o
-	@mkdir -p output
-	$(CC) $^ -luv -o output/$@
+$(BUILD_DIR)/utils.o: $(COMMON_DIR)/utils.c $(COMMON_DIR)/utils.h | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-counter: src/file_counter.o
-	@mkdir -p output
-	$(CC) $^ -o output/$@
-
-MPMC: src/MPMC.o
-	@mkdir -p output
-	@$(CC) $^ $(LIB_PATH) -o output/$@ -lpthread
-
-semaphore: src/semaphore.o
-	@mkdir -p output
-	@$(CC) $^ $(LIB_PATH) -o output/$@ -lpthread
-
-#compile
-%.o: %.c
-	$(CC) -g $(INCLUDES)  -c  $< -o $@
-
-.PHONY:clean
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
 clean:
 	@echo "Remove linked and compiled files......"
-	rm -rf $(OBJ) $(EXECUTABLES) output
+	rm -rf $(BUILD_DIR)

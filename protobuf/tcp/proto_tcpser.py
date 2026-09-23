@@ -1,6 +1,14 @@
+import os
+import sys
+
+# allow running from anywhere: import utils/target_pb2 from protobuf/ and protobuf/zmq/
+_BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _BASE)
+sys.path.insert(0, os.path.join(_BASE, "zmq"))
+
 from socket import *
-from zmq_socket import target_pb2
 from utils import decode_varint, encode_varint
+import target_pb2
 import threading
 
 HOST = "localhost"
